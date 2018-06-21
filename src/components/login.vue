@@ -79,6 +79,8 @@ export default {
         // 把登录成功后的令牌，保存到 sessionStorage中
         // 前提是要在main.js中设置请求头的token值
         window.sessionStorage.setItem('token', res.data.token)
+        // 使用 js api 实现登录跳转 this.$router
+        this.$router.push('/home')
       })
     }
   }
