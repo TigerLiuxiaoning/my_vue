@@ -77,6 +77,7 @@ export default {
         this.$message.success('登录成功! ')
         console.log(res)
         // 把登录成功后的令牌，保存到 sessionStorage中
+        // 前提是要在main.js中设置请求头的token值
         window.sessionStorage.setItem('token', res.data.token)
       })
     }
