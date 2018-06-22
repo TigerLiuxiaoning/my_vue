@@ -11,3 +11,7 @@ body,
 .el-input__icon {
   line-height: 1;
 }
+.el-breadcrumb{
+  margin-bottom: 20px;
+}
+

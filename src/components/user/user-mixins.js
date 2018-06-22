@@ -52,6 +52,26 @@ export default {
           { required: true, message: '请输入手机号', trigger: 'blur' },
           { validator: checkMobile, trigger: 'blur' }
         ]
+      },
+      // 编辑用户列表
+      editForm: {
+        id: '',
+        username: '',
+        email: '',
+        mobile: ''
+      },
+      // 编辑用户的对话框
+      editDialogVisible: false,
+      // 编辑用户的规则
+      editFormRules: {
+        email: [
+          { required: true, message: '请输入邮箱', trigger: 'blur' },
+          { validator: checkEmail, trigger: 'blur' }
+        ],
+        mobile: [
+          { required: true, message: '请输入手机号', trigger: 'blur' },
+          { validator: checkMobile, trigger: 'blur' }
+        ]
       }
     }
   },
@@ -64,7 +84,7 @@ export default {
       //  this.$http.post('login', {username: 'zs', password: '123456'})
       // 发起 get 请求，并携带 查询参数
       const { data: res } = await this.$http.get('users', { params: this.queryinfo })
-      console.log(res)
+      // console.log(res)
       if (res.meta.status !== 200) return this.$message.error('请求用户列表失败！')
       // 为用户列表赋值
       this.userlist = res.data.users
@@ -89,15 +109,76 @@ export default {
       console.log(res)
     },
     // 添加用户列表
-    async addUser() {
-      const {data: res} = await this.$http.post('users', this.addForm)
-      console.log(res)
-      this.getUserList()
-      this.addDialogVisible = false
+    addUser() {
+      // 应该先校验再发请求 获取数据
+      this.$refs.addFormRef.validate(async valid => {
+        // console.log(valid)
+        if (!valid) return
+        const {data: res} = await this.$http.post('users', this.addForm)
+        console.log(res)
+        if (res.meta.status !== 201) return this.$message.error('添加用户列表失败!')
+        this.$message.success('添加用户列表成功')
+        this.getUserList()
+        this.addDialogVisible = false
+      })
     },
     // 关闭添加用户列表
     addDialogClosed() {
       this.$refs.addFormRef.resetFields()
+    },
+    // 关闭编辑用户对话框
+    editDialogClosed() {
+      this.editDialogVisible = false
+    },
+    // 编辑用户列表的对话框
+    async showEditDialog(scope) {
+      // 不能直接拿scope中的数据 有可能不是最新的数据
+      console.log(scope)
+      const {data: res} = await this.$http.get('users/' + scope.row.id)
+      console.log(res)
+      if (res.meta.status !== 200) return this.$message.error('获取用户信息失败！')
+      this.editForm.id = res.data.id
+      this.editForm.username = res.data.username
+      this.editForm.email = res.data.email
+      this.editForm.mobile = res.data.mobile
+      // 显示对话框
+      this.editDialogVisible = true
+    },
+    // 点击编辑用户列表提交
+    editUser() {
+      // 先校验数据是否为空
+      this.$refs.editFormRef.validate(async valid => {
+        // console.log(valid)
+        // 校验失败
+        if (!valid) return
+        // 校验成功 发送请求
+        const {data: res} = await this.$http.put('users/' + this.editForm.id, this.editForm)
+        console.log(res)
+        if (res.meta.status !== 200) return this.$message.error('编辑失败！')
+        this.$message.success('编辑成功!')
+        this.getUserList()
+        this.editDialogVisible = false
+      })
+    },
+    // 删除指定的用户
+    async deleteUser(id) {
+      // console.log(id)
+      const isConfirm = await this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).catch(err => err)
+      // 根据消息提示的结果 处理不同的业务逻辑
+      // if (isConfirm !== 'confirm') {
+      //   return this.$message('取消删除成功')
+      // }
+      if (isConfirm !== 'confirm') return this.$message('取消删除成功')
+      // 成功的话 发请求删除该用户
+      const {data: res} = await this.$http.delete('users/' + id)
+      // console.log(res)
+      if (res.meta.status !== 200) return this.$message.error('删除失败')
+      this.$message.success('删除成功')
+      this.getUserList()
     }
   }
 }

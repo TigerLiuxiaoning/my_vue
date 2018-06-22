@@ -83,7 +83,7 @@ export default {
       if (res.meta.status !== 200) return this.$message.error('获取左侧菜单列表失败！')
       // 获取数据成功  把获取到的数据赋值给data中的 Menus
       this.menus = res.data
-      console.log(res)
+      // console.log(res)
     }
   }
 }
