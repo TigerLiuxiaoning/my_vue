@@ -8,3 +8,6 @@ body,
   background-color: #2b4b6b;
   min-width: 1024px;
 }
+.el-input__icon {
+  line-height: 1;
+}

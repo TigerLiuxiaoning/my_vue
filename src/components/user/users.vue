@@ -18,7 +18,7 @@
           </el-input>
         </el-col>
         <el-col :span="4">
-          <el-button type="primary">添加用户</el-button>
+          <el-button type="primary" @click="addDialogVisible=true">添加用户</el-button>
         </el-col>
       </el-row>
 
@@ -53,7 +53,8 @@
           <!-- 让这一行的开关，把状态绑定到 这一行数据的 mg_state 上 -->
           <el-switch
             v-model="scope.row.mg_state"
-            slot-scope="scope">
+            slot-scope="scope"
+            @change="switchChange(scope.row.mg_state,scope.row.id)">
           </el-switch>
         </el-table-column>
         <el-table-column
@@ -80,52 +81,38 @@
         :total="total">
       </el-pagination>
     </el-card>
-
+    <!-- 添加用户的对话框 -->
+    <el-dialog
+      title="提示"
+      :visible.sync="addDialogVisible"
+      width="50%"
+      @close="addDialogClosed">
+      <el-form ref="addFormRef" :model="addForm" :rules="addFormRules" label-width="80px">
+        <el-form-item label="用户名" prop="username">
+          <el-input v-model="addForm.username"></el-input>
+        </el-form-item>
+        <el-form-item label="密码" prop="password">
+          <el-input v-model="addForm.password"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱" prop="email">
+          <el-input v-model="addForm.email"></el-input>
+        </el-form-item>
+        <el-form-item label="手机" prop="mobile">
+          <el-input v-model="addForm.mobile"></el-input>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="addDialogVisible=false">取 消</el-button>
+        <el-button type="primary" @click="addUser">确 定</el-button>
+      </span>
+    </el-dialog>
+    <!-- 编辑用户的对话框 -->
   </div>
 </template>
 
 <script>
+import mix from './user-mixins.js'
 export default {
-  data() {
-    return {
-      // 查询用户列表时候，要携带的查询参数
-      queryinfo: {
-        query: '', // 用户输入的搜索条件
-        pagenum: 1, // 当前请求的是第几页数据
-        pagesize: 2 // 每页显示几条数据
-      },
-      total: 0, // 总共有多少条数据
-      // 用户列表
-      userlist: []
-    }
-  },
-  created() {
-    this.getUserList()
-  },
-  methods: {
-    // 根据查询参数，获取用户列表
-    async getUserList() {
-      //  this.$http.post('login', {username: 'zs', password: '123456'})
-      // 发起 get 请求，并携带 查询参数
-      const { data: res } = await this.$http.get('users', { params: this.queryinfo })
-      console.log(res)
-      if (res.meta.status !== 200) return this.$message.error('请求用户列表失败！')
-      // 为用户列表赋值
-      this.userlist = res.data.users
-      // 为总页数赋值
-      this.total = res.data.total
-    },
-    // 监听 pagesize 的变化
-    handleSizeChange(newSize) {
-      // 把最新的 pagesize 赋值给 this.queryinfo
-      this.queryinfo.pagesize = newSize
-      this.getUserList()
-    },
-    // 监听 页码值 的变化
-    handleCurrentChange(newPageNum) {
-      this.queryinfo.pagenum = newPageNum
-      this.getUserList()
-    }
-  }
+  mixins: [mix]
 }
 </script>
