@@ -14,4 +14,10 @@ body,
 .el-breadcrumb{
   margin-bottom: 20px;
 }
+.el-table--border {
+  margin-top: 20px;
+}
+.el-pagination {
+  margin-top: 20px;
+}
 

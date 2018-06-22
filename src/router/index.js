@@ -8,6 +8,8 @@ import Home from '@/components/home'
 import Welcome from '@/components/welcome'
 // 导入users组件
 import Users from '@/components/user/users'
+// 导入rights组件
+import Right from '@/components/power/rights'
 Vue.use(Router)
 
 const router = new Router({
@@ -24,7 +26,7 @@ const router = new Router({
       path: '/home',
       component: Home,
       redirect: '/welcome',
-      children: [{path: '/welcome', component: Welcome}, {path: '/users', component: Users}]
+      children: [{path: '/welcome', component: Welcome}, {path: '/users', component: Users}, {path: '/rights', component: Right}]
     }
   ]
 })
