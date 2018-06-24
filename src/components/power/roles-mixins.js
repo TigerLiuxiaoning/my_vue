@@ -32,7 +32,20 @@ export default {
         roleDesc: [
           { required: true, message: '请输入角色描述', trigger: 'blur' }
         ]
-      }
+      },
+      // 分配权限
+      rightsDialogVisible: false,
+      // 所有权限数据
+      rightsTree: [],
+      // 属性结构权限 props
+      treeProps: {
+        label: 'authName',
+        children: 'children'
+      },
+      // 定义所有的三级权限id
+      rightIds: '',
+      // 角色id
+      roleId: ''
     }
   },
   created() {
@@ -120,6 +133,51 @@ export default {
       // this.getRolesList()
       // 为了让删除之后 不关闭当前的正在处于的状态  重新赋值
       row.children = res.data
+    },
+    // 分配权限的显示 和 隐藏
+    async showRightDialog(row) {
+      // 获取数据 供页面使用 并且在展开的时候 勾选对应角色的权限id
+      const { data: res } = await this.$http.get('rights/tree')
+      if (res.meta.status !== 200) return this.$message.error('获取权限数据失败！')
+      this.rightsTree = res.data
+      console.log(res)
+      const keys = [] // 存放所有的三级权限的id
+      this.getLeafIds(row, keys)
+      // console.log(keys)
+      this.rightIds = keys
+      // 把当前的角色id存储起来
+      this.roleId = row.id
+      this.rightsDialogVisible = true
+    },
+    // 获取所有权限的id 使用递归的方式 传递数据 和 存放id的数组
+    getLeafIds(node, keyArr) {
+      // 递归 必须有结束条件 和 自己调用自己
+      if (!node.children) {
+        keyArr.push(node.id)
+      } else {
+        node.children.forEach(item => {
+          // 自己调用自己 校验数据
+          this.getLeafIds(item, keyArr)
+        })
+      }
+    },
+    // 更新呢分配权限
+    async updateRight() {
+      // console.log('aa')
+      // 调用方法获取当前所有选中的半选的id和id
+      const key1 = this.$refs.treeRef.getHalfCheckedKeys()
+      const key2 = this.$refs.treeRef.getCheckedKeys()
+      // console.log(key1)
+      // console.log(key2)
+      const checkedKey = [...key1, ...key2]
+      // console.log(checkedKey)
+      // 发送请求 提交更新的权限管理
+      const { data: res } = await this.$http.post(`roles/${this.roleId}/rights`, {rids: checkedKey.join(',')})
+      // console.log(res)
+      if (res.meta.status !== 200) return this.$message.error('更新权限失败！')
+      this.$message.success('更新权限成功！')
+      this.getRolesList()
+      this.rightsDialogVisible = false
     }
   }
 }

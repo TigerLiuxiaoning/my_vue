@@ -102,7 +102,7 @@ export default {
       this.queryinfo.pagenum = newPageNum
       this.getUserList()
     },
-    // 监听事件改变
+    // 监听状态事件改变
     async switchChange(newState, id) {
       // 发送请求
       const {data: res} = await this.$http.put('users/' + id + '/state/' + newState)
